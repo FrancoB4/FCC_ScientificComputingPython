@@ -1,6 +1,14 @@
-def add_time(start, duration, day=''):
-    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday',
-            'Friday', 'Saturday', 'Sunday']
+def add_time(start: str, duration: str, day: str = '') -> str:
+    """Add an amount of time to a start time.
+     Args:
+         start (str): The start time.
+         duration (str): The time to add to the start time.
+         day (str): The day of the week when strar the adding operation.
+     Returns:
+         (str) The start time plus the duration (if day was give, also return the end day).
+    """
+
+    days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
     start_time = start.split()[0]
     start_hour = int(start_time.split(':')[0])
     start_mins = int(start_time.split(':')[1])

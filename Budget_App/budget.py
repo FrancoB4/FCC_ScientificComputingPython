@@ -16,7 +16,18 @@ def raw(operation):
 
 
 class Category:
-    def __init__(self, category):
+    """Budget Category to manage expenses and transactions
+
+    Attributes:
+        category (str): Name of the category
+    """
+
+    def __init__(self, category: str):
+        """Construct an instance of type Category
+
+        Args:
+            category (str): Name of the category
+        """
         self.category = category
         self.ledger = []
 
@@ -29,14 +40,23 @@ class Category:
         for operation in self.ledger:
             exit_string += raw(operation)
 
-        # exit_string += f'\nTotal: {self.get_balance()} '
         exit_string += '\nTotal: ' + str(self.get_balance()) + ' '
         return exit_string
 
-    def deposit(self, amount, description=''):
+    def deposit(self, amount: (float | int), description: str = ''):
+        """Add an amount of money to the category."""
         self.ledger.append({'amount': amount, 'description': description})
 
-    def withdraw(self, amount, description=''):
+    def withdraw(self, amount: (float | int), description: str = '') -> bool:
+        """Reduces the accumulated amount by a certain amount
+
+        Args:
+            amount (float | int): The amount to withdraw
+            description (str): Brief description of the reason for the withdrawal
+
+        Returns:
+            bool: Returns False if the amount is bigger than the funds in the Category.
+        """
         if self.check_funds(amount):
             self.ledger.append({'amount': -amount, 'description': description})
             return True
@@ -63,7 +83,13 @@ class Category:
         return False
 
 
-def create_spend_chart(categories):
+def create_spend_chart(categories: list[Category], sort: bool = False) -> str:
+    """Shows a graphic with the different percentages spent by categories
+
+    Args:
+        categories (list): A list with Category instances which will be showed in the graph.
+        sort (bool): True if you want the chart to display categories in descending order.
+    """
     categories_data = []
     total_spent = 0
     max_len = 0
@@ -73,29 +99,34 @@ def create_spend_chart(categories):
     for category in categories:
 
         if len(category.category) > max_len:
-            max_len = len(category.category)
+            max_len = len(category.category)  # Set the length of the longest category name
 
         spent = 0
         for operation in category.ledger:
             if operation['amount'] < 0:
                 spent -= operation['amount']
 
-        total_spent += spent
+        total_spent += spent  # Add each withdraw from each category to the total.
 
+        # Save the spend data for each category.
         categories_data.append({'category': category.category, 'spent': spent})
 
     for category in categories_data:
+        # Save the percentage that represents the category about the total spent.
         category['percentage'] = round(category['spent'] * 100 / total_spent)
 
-        splited = category['category'].split()
-        while len(splited) < max_len:
-            splited.append(' ')
+        splitted = category['category'].split()  # Category name character by character to show them at the end.
 
-        category['splited'] = ''.join(splited)
+        while len(splitted) < max_len:
+            splitted.append(' ')  # Match the length of name strings to be able to display them.
 
-    # categories_data = sorted(categories_data, key=lambda x: x['percentage'], reverse=True)
+        category['splitted'] = ''.join(splitted)
+
+    if sort:
+        categories_data = sorted(categories_data, key=lambda x: x['percentage'], reverse=True)
 
     for i in range(100, -1, -10):
+        # Build the graphic
         index = str(i)
         while len(index) != 3:
             index = f' {index}'
@@ -114,6 +145,28 @@ def create_spend_chart(categories):
     exit_rows.append('    ' + '-' * (categories_len * 3 + 1))
 
     for i in range(max_len):
-        exit_rows.append('     ' + ''.join([f"{cat['splited'][i]}  " for cat in categories_data]))
+        # Add the names of the categories
+        exit_rows.append('     ' + ''.join([f"{cat['splitted'][i]}  " for cat in categories_data]))
 
     return '\n'.join(exit_rows)
+
+
+if __name__ == '__main__':
+    food = Category("Food")
+    food.deposit(1000, "initial deposit")
+    food.withdraw(10.15, "groceries")
+    food.withdraw(15.89, "restaurant and more food for dessert")
+    print(food.get_balance())
+    clothing = Category("Clothing")
+    food.transfer(50, clothing)
+    clothing.withdraw(25.55)
+    clothing.withdraw(100)
+    auto = Category("Auto")
+    auto.deposit(1000, "initial deposit")
+    auto.withdraw(15)
+
+    print(food)
+    print(clothing)
+
+    print(create_spend_chart([clothing, food, auto]))
+    print(create_spend_chart([clothing, food, auto], sort=True))
