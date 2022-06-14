@@ -23,11 +23,6 @@ class Category:
     """
 
     def __init__(self, category: str):
-        """Construct an instance of type Category
-
-        Args:
-            category (str): Name of the category
-        """
         self.category = category
         self.ledger = []
 
@@ -48,15 +43,6 @@ class Category:
         self.ledger.append({'amount': amount, 'description': description})
 
     def withdraw(self, amount: (float | int), description: str = '') -> bool:
-        """Reduces the accumulated amount by a certain amount
-
-        Args:
-            amount (float | int): The amount to withdraw
-            description (str): Brief description of the reason for the withdrawal
-
-        Returns:
-            bool: Returns False if the amount is bigger than the funds in the Category.
-        """
         if self.check_funds(amount):
             self.ledger.append({'amount': -amount, 'description': description})
             return True
